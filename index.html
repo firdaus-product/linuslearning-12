@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kemahiran Pemulihan: Operasi Tambah (Pembelajaran)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{ box-sizing:border-box; }
+    .card-shadow{ box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06); }
+    .dot-card{ transition:all .25s ease; }
+    .dot-card:hover{ transform:scale(1.03); }
+    .selected{ outline:4px solid #3b82f6; background:#dbeafe; }
+    .tag{ font-size:.75rem; padding:.125rem .5rem; border-radius:.5rem; background:#eef2ff; color:#3730a3; }
+    .dragging{ opacity:.6; transform:rotate(2deg); }
+    .drop-zone{ border:3px dashed #94a3b8; transition:all .2s ease; }
+    .drop-zone.drag-over{ border-color:#3b82f6; background:#e0f2fe; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+  <main class="container mx-auto p-4 max-w-6xl">
+    <!-- Header -->
+    <header class="text-center mb-6">
+      <h1 class="text-4xl font-extrabold text-purple-800">🧮 Kemahiran Pemulihan: Operasi Tambah (Pembelajaran)</h1>
+      <p class="text-slate-600">Untuk murid 5–9 tahun • Pembelajaran interaktif tanpa markah/penilaian</p>
+    </header>
+
+    <!-- Info bar -->
+    <section class="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-lg card-shadow mb-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">💡</span>
+        <span id="infoText" class="text-yellow-800 font-medium">Klik butang aktiviti di bawah untuk mula meneroka.</span>
+      </div>
+      <button id="speakBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-xl font-bold">🔊 Sebut</button>
+    </section>
+
+    <!-- Activity surface -->
+    <section id="activityCard" class="bg-white rounded-xl card-shadow p-6 min-h-96">
+      <div id="activityContent" class="text-center">
+        <div class="text-6xl mb-3">🎯</div>
+        <h2 class="text-2xl font-bold text-slate-800">Pilih aktiviti untuk mula belajar!</h2>
+        <p class="text-slate-600 mt-1">Semua aktiviti memberi penerangan tanpa betul/salah.</p>
+      </div>
+    </section>
+
+    <!-- Controls -->
+    <!-- Controls: pilih aktiviti -->
+    <section class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-6">
+      <button onclick="loadActivity(1)"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-bold">
+        🔵 Kad Titik
+      </button>
+
+      <button onclick="loadActivity(2)"
+        class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-bold">
+        🔢 Banding Jumlah
+      </button>
+
+      <button onclick="loadActivity(3)"
+        class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg font-bold">
+        🧺 Bakul Jumlah
+      </button>
+
+      <button onclick="loadActivity(4)"
+        class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-3 rounded-lg font-bold">
+        🎨 Warna Jumlah
+      </button>
+
+      <button onclick="loadActivity(5)"
+        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg font-bold">
+        🧩 Susun Tertib
+      </button>
+
+      <button onclick="clearActivity()"
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-bold">
+        🗑️ Bersih
+      </button>
+
+      <button onclick="nextActivity()"
+        class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg font-bold">
+        ➡️ Seterusnya
+      </button>
+    </section>
+
+  </main>
+
+<script>
+/* ---------- TTS ---------- */
+let isUnlocked=false, curAct=0;
+const setInfo = (t)=> document.getElementById('infoText').textContent=t;
+function unlockAudio(){ if(!isUnlocked){ speechSynthesis.speak(new SpeechSynthesisUtterance('')); isUnlocked=true; } }
+function speak(t){
+  if(!isUnlocked) return;
+  speechSynthesis.cancel();
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(t);
+    u.lang='ms-MY'; u.rate=.9; u.pitch=1.1;
+    const v=speechSynthesis.getVoices().find(v=>/ms|MY/i.test(v.lang));
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  },100);
+}
+document.addEventListener('click',unlockAudio,{once:true});
+document.getElementById('speakBtn').onclick=()=>speak(document.getElementById('infoText').textContent);
+
+/* ---------- Aktiviti 1: Kad bertitik → jelaskan ayat matematik ---------- */
+function activity1(){
+  const html = `
+    <h2 class="text-3xl font-bold text-blue-800 mb-2 text-center">🎯 Klik Kad Bertitik</h2>
+    <p class="text-center text-slate-600 mb-6">Klik mana-mana kad untuk mendengar <b>ayat matematik</b> yang sepadan. Tiada betul/salah — hanya penerangan.</p>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      ${card('blue','🔵🔵🔵','🔵🔵','3 + 2 = 5')}
+      ${card('green','🟢🟢🟢🟢','🟢🟢🟢','4 + 3 = 7')}
+      ${card('purple','🟣🟣','🟣🟣🟣🟣','2 + 4 = 6')}
+      ${card('red','🔴','🔴🔴🔴🔴🔴','1 + 5 = 6')}
+      ${card('yellow','🟡🟡🟡🟡🟡','🟡','5 + 1 = 6')}
+      ${card('orange','🟠🟠🟠🟠🟠🟠','⭕','6 + 0 = 6')}
+    </div>`;
+  document.getElementById('activityContent').innerHTML=html;
+  setInfo('Klik kad — sistem akan sebut ayat tambah berdasarkan bilangan titik.');
+  function card(color,top,bottom,text){
+    return `
+    <button class="dot-card bg-${color}-100 p-6 rounded-xl border-4 border-transparent text-center"
+      onclick="explainDots(this,'${text}')">
+      <div class="text-4xl">${top}</div>
+      <div class="text-2xl my-1">➕</div>
+      <div class="text-4xl">${bottom}</div>
+      <div class="mt-2 tag">Klik untuk penerangan</div>
+    </button>`;
+  }
+}
+window.explainDots=(el,eq)=>{
+  document.querySelectorAll('.dot-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  const msg=`Ayat matematik: ${eq}. Simbol tambah bermaksud menggabungkan dua kumpulan.`;
+  setInfo(msg); speak(msg);
+}
+
+/* ---------- Aktiviti 2: Banding jumlah (tiada salah) ---------- */
+let pairSel=[];
+function activity2(){
+  const html = `
+    <h2 class="text-3xl font-bold text-green-800 mb-2 text-center">🔢 Banding Jumlah</h2>
+    <p class="text-center text-slate-600 mb-6">Klik mana-mana kad untuk dengar jumlahnya. Jika dua kad mempunyai jumlah sama, sistem akan beritahu.</p>
+    <div id="matchingGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      ${m('7 + 3',10,'blue')}
+      ${m('5 + 3',8,'green')}
+      ${m('6 + 4',10,'purple')}
+      ${m('2 + 6',8,'red')}
+      ${m('8 + 4',12,'yellow')}
+      ${m('9 + 3',12,'orange')}
+    </div>`;
+  document.getElementById('activityContent').innerHTML=html;
+  setInfo('Klik satu kad, kemudian cuba cari kad lain dengan jumlah yang sama (penerangan sahaja).');
+
+  function m(label,sum,clr){
+    return `<button class="match-card bg-${clr}-100 p-4 rounded-xl border-4 border-transparent"
+            data-sum="${sum}" onclick="tapMatch(this,'${label}',${sum})">
+            <div class="text-2xl font-bold text-${clr}-800">${label}</div>
+            <div class="mt-1 tag">Jumlah: ${sum}</div>
+          </button>`;
+  }
+}
+window.tapMatch=(el,label,sum)=>{
+  el.classList.toggle('selected');
+  const chosen = document.querySelectorAll('#matchingGrid .selected');
+  if(chosen.length===1){
+    const msg=`Kad pertama: ${label} berjumlah ${sum}. Pilih satu lagi untuk dibandingkan.`;
+    setInfo(msg); speak(msg);
+  }else if(chosen.length===2){
+    const [a,b]=[...chosen];
+    const s1=a.dataset.sum, s2=b.dataset.sum;
+    const msg = (s1===s2)
+      ? `Kedua-dua kad mempunyai jumlah yang sama: ${s1}. Bagus untuk melihat corak jumlah!`
+      : `Kad pertama berjumlah ${s1}, kad kedua berjumlah ${s2}. Tidak sama, tetapi kedua-duanya contoh ayat tambah.`;
+    setInfo(msg); speak(msg);
+    // kekalkan highlight seketika, kemudian nyahpilih untuk eksplorasi seterusnya
+    setTimeout(()=>chosen.forEach(c=>c.classList.remove('selected')),1200);
+  }else{
+    // jika lebih 2, reset kepada yang terkini
+    document.querySelectorAll('#matchingGrid .selected').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+};
+
+/* ---------- Aktiviti 3: Seret ke bakul (maklum balas penerangan sahaja) ---------- */
+function activity3(){
+  const html=`
+    <h2 class="text-3xl font-bold text-purple-800 mb-2 text-center">🎪 Susun Mengikut Jumlah</h2>
+    <p class="text-center text-slate-600 mb-6">Seret kad ke mana-mana bakul. Sistem hanya menerangkan jumlah dan sama ada ia sepadan.</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      ${bin(6,'blue')}${bin(10,'green')}${bin(12,'purple')}
+    </div>
+    <div id="dragCards" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      ${card('4 + 2',6)}${card('7 + 3',10)}${card('8 + 4',12)}
+      ${card('5 + 1',6)}${card('6 + 4',10)}${card('9 + 3',12)}
+    </div>`;
+  document.getElementById('activityContent').innerHTML=html;
+  setInfo('Seret mana-mana kad ke bakul untuk lihat penerangan jumlah.');
+  setupDragAndDrop();
+
+  function bin(sum,clr){
+    return `<div class="drop-zone bg-${clr}-50 p-4 rounded-xl text-center min-h-32" data-target="${sum}">
+      <h3 class="font-bold text-${clr}-800 mb-2">Bakul Jumlah ${sum}</h3>
+      <div class="text-4xl">🧺</div>
+    </div>`;
+  }
+  function card(label,sum){
+    return `<div class="drag-card bg-white p-4 rounded-xl text-center border-2 border-gray-300 cursor-move"
+             draggable="true" data-sum="${sum}">
+              <div class="text-xl font-bold">${label}</div>
+              <div class="text-sm text-slate-500">Jumlah: ${sum}</div>
+            </div>`;
+  }
+}
+function setupDragAndDrop(){
+  document.querySelectorAll('.drag-card').forEach(c=>{
+    c.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('text/plain', e.target.dataset.sum);
+      e.target.classList.add('dragging');
+    });
+    c.addEventListener('dragend',e=>e.target.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.drop-zone').forEach(zone=>{
+    zone.addEventListener('dragover',e=>{e.preventDefault(); zone.classList.add('drag-over');});
+    zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+    zone.addEventListener('drop',e=>{
+      e.preventDefault(); zone.classList.remove('drag-over');
+      const draggedSum = e.dataTransfer.getData('text/plain');
+      const targetSum  = zone.dataset.target;
+      const card = document.querySelector('.dragging');
+      if(card){ zone.appendChild(card); card.draggable=false; }
+      const msg = (draggedSum===targetSum)
+        ? `Kad ini berjumlah ${draggedSum} dan kini berada dalam bakul ${targetSum}. Bagus, ia sepadan.`
+        : `Kad ini berjumlah ${draggedSum}. Anda meletakkannya dalam bakul ${targetSum}. Tidak mengapa — kita hanya memerhati dan membandingkan.`;
+      setInfo(msg); speak(msg);
+    });
+  });
+}
+
+/* ---------- Aktiviti 4: Warnakan mengikut jumlah (penerangan) ---------- */
+let selectedColor=null, selectedColorSum=null;
+function activity4(){
+  const html=`
+    <h2 class="text-3xl font-bold text-pink-800 mb-2 text-center">🎨 Warnakan Mengikut Jumlah</h2>
+    <p class="text-center text-slate-600 mb-6">Pilih warna, kemudian klik kad. Jika jumlahnya sepadan, sistem nyatakan padanan; jika tidak, ia tetap diwarnakan dan diterangkan.</p>
+    <div class="flex justify-center gap-4 mb-5">
+      ${clr('red',8)} ${clr('blue',10)} ${clr('green',12)}
+    </div>
+    <div class="text-center mb-4"><span class="font-bold">Warna dipilih: </span><span id="selClr">Tiada</span></div>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      ${card(8,'5 + 3')} ${card(10,'7 + 3')} ${card(12,'8 + 4')}
+      ${card(8,'6 + 2')} ${card(10,'6 + 4')} ${card(12,'9 + 3')}
+    </div>`;
+  document.getElementById('activityContent').innerHTML=html;
+  setInfo('Pilih warna dahulu, kemudian klik kad untuk mewarnakan dan mendengar penerangan.');
+
+  function clr(name,sum){
+    return `<button class="color-btn w-16 h-16 rounded-full border-4 border-gray-300 bg-${name}-500"
+            data-color="${name}" data-sum="${sum}" onclick="pickColor(this)"></button>`;
+  }
+  function card(sum,label){
+    return `<button class="color-card bg-gray-100 p-4 rounded-xl border-4 border-gray-300 text-center"
+            data-sum="${sum}" onclick="paintCard(this,'${label}',${sum})">
+              <div class="text-xl font-bold">${label}</div>
+              <div class="text-sm text-slate-500">Jumlah: ${sum}</div>
+            </button>`;
+  }
+}
+window.pickColor=(btn)=>{
+  document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('ring-4','ring-yellow-400'));
+  btn.classList.add('ring-4','ring-yellow-400');
+  selectedColor = btn.dataset.color;
+  selectedColorSum = btn.dataset.sum;
+  const nm = selectedColor==='red'?'Merah (8)':selectedColor==='blue'?'Biru (10)':'Hijau (12)';
+  document.getElementById('selClr').textContent = nm;
+  setInfo(`Warna dipilih: ${nm}. Cari kad yang sepadan atau warnakan mana-mana kad untuk melihat perbandingan.`);
+};
+window.paintCard=(el,label,sum)=>{
+  if(!selectedColor){ setInfo('Pilih warna dahulu.'); return; }
+  const colClass = {red:'bg-red-200 border-red-500 text-red-800',blue:'bg-blue-200 border-blue-500 text-blue-800',green:'bg-green-200 border-green-500 text-green-800'}[selectedColor];
+  el.className = `color-card p-4 rounded-xl border-4 text-center ${colClass}`;
+  const msg = (String(sum)===String(selectedColorSum))
+    ? `Kad “${label}” berjumlah ${sum} — ia sepadan dengan warna yang dipilih.`
+    : `Kad “${label}” berjumlah ${sum}. Warna dipilih mewakili jumlah ${selectedColorSum}. Menarik untuk bandingkan perbezaan ini.`;
+  setInfo(msg); speak(msg);
+};
+
+/* ---------- Aktiviti 5: Tertib jumlah (tanpa gagal) ---------- */
+let shownOrder=[];
+function activity5(){
+  const html=`
+    <h2 class="text-3xl font-bold text-orange-800 mb-2 text-center">🧩 Susun Mengikut Tertib Jumlah</h2>
+    <p class="text-center text-slate-600 mb-4">Klik mana-mana kad untuk dengar jumlahnya. Gunakan butang “Susun Secara Visual” untuk melihat tertib menaik.</p>
+    <div id="orderCards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+      ${card('8 + 4',12)} ${card('4 + 2',6)} ${card('7 + 3',10)} ${card('5 + 3',8)}
+    </div>
+    <div class="text-center">
+      <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+        onclick="sortVisually()">🔄 Susun Secara Visual</button>
+      <p class="mt-3 text-slate-600">Tertib sasaran: 6 → 8 → 10 → 12</p>
+    </div>`;
+  document.getElementById('activityContent').innerHTML=html;
+  setInfo('Klik kad untuk penerangan, atau susun secara visual untuk melihat urutan menaik.');
+  document.querySelectorAll('#orderCards .order-card').forEach(btn=>{
+    btn.onclick=()=>{
+      const sum=+btn.dataset.sum, label=btn.dataset.label;
+      setInfo(`Kad “${label}” berjumlah ${sum}. Dalam susunan menaik, ${sum} berada selepas nombor yang lebih kecil.`);
+      speak(`Kad ${label} berjumlah ${sum}.`);
+    };
+  });
+
+  function card(label,sum){
+    return `<button class="order-card bg-white p-4 rounded-xl border-4 border-gray-300 text-center"
+            data-sum="${sum}" data-label="${label}">
+              <div class="text-xl font-bold">${label}</div>
+              <div class="text-sm text-slate-500">Jumlah: ${sum}</div>
+            </button>`;
+  }
+}
+window.sortVisually=()=>{
+  const cont=document.getElementById('orderCards');
+  const items=[...cont.children].sort((a,b)=>(+a.dataset.sum)-(+b.dataset.sum));
+  cont.innerHTML=''; items.forEach(i=>cont.appendChild(i));
+  setInfo('Kad telah disusun dari jumlah terkecil ke terbesar.');
+  speak('Kad telah disusun dari jumlah terkecil ke terbesar.');
+};
+
+/* ---------- Router ---------- */
+function loadActivity(n){
+  curAct=n;
+  if(n===1) activity1();
+  if(n===2) activity2();
+  if(n===3) activity3();
+  if(n===4) activity4();
+  if(n===5) activity5();
+}
+function clearActivity(){
+  curAct=0;
+  document.getElementById('activityContent').innerHTML = `
+    <div class="text-center">
+      <div class="text-6xl mb-3">🎯</div>
+      <h2 class="text-2xl font-bold text-slate-800">Pilih aktiviti untuk mula belajar!</h2>
+      <p class="text-slate-600 mt-1">Semua aktiviti memberi penerangan tanpa betul/salah.</p>
+    </div>`;
+  setInfo('Klik butang aktiviti di bawah untuk mula meneroka.');
+}
+function nextActivity(){ loadActivity(curAct? (curAct%5)+1 : 1); }
+
+/* init */
+clearActivity();
+speechSynthesis.addEventListener('voiceschanged',()=>{});
+</script>
+</body>
+</html>
