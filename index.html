@@ -1,269 +1,332 @@
 <!DOCTYPE html>
-<html lang="ms-MY">
+<html lang="ms-MY" class="overflow-hidden overscroll-none">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pemulihan: Operasi Tambah (Pembelajaran)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pemulihan: Operasi Tambah (Pembelajaran)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <style>
-    /* --- UI STYLE (MASTER REFERENCE - TEMA HIJAU) --- */
-    body { 
-        font-family: 'Fredoka', sans-serif; 
-        background-color: #f0fdf4; 
-        background-image: radial-gradient(#86efac 2px, transparent 2px); 
-        background-size: 30px 30px; 
-    }
-    
-    .game-card { 
-        background: white; 
-        border: 4px solid #475569; 
-        box-shadow: 8px 8px 0px #00000020; 
-        border-radius: 1.5rem; 
-        min-height: 600px; 
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        overflow: hidden; 
-    }
-    
-    /* Buttons */
-    .btn-3d { 
-        transition: all 0.1s; 
-        border-bottom-width: 6px; 
-        border-color: rgba(0,0,0,0.2); 
-        transform: translateY(0); 
-        cursor: pointer; 
-        display: inline-block; 
-    }
-    .btn-3d:active:not(:disabled) { transform: translateY(4px); border-bottom-width: 2px; box-shadow: none; }
-    
-    /* Animations & Utilities */
-    .selected { border-color: #3b82f6 !important; background-color: #eff6ff !important; transform: scale(1.05); }
-    .shake { animation: shake 0.4s ease-in-out; }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    <style>
+        /* --- UI STYLE (MASTER REFERENCE - TEMA HIJAU) --- */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#86efac 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
 
-    /* Drag & Drop Standard */
-    .draggable { cursor: grab; touch-action: none; }
-    .draggable:active { cursor: grabbing; opacity: 0.6; transform: scale(1.05) rotate(3deg); }
-    .drop-zone { transition: all 0.2s; border: 4px dashed #cbd5e1; background: #f8fafc; }
-    .drop-zone.drag-over { background: #dbeafe; border-color: #3b82f6; transform: scale(1.02); }
+        .game-card {
+            background: white;
+            border: 4px solid #475569;
+            box-shadow: 8px 8px 0px #00000020;
+            border-radius: 1.5rem;
+            /* min-height: 600px; REMOVED */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-    /* Grid Scroll for mobile safety */
-    .scroll-container {
-        width: 100%;
-        max-height: 450px;
-        overflow-y: auto;
-        padding: 10px;
-    }
-  </style>
+        /* Buttons */
+        .btn-3d {
+            transition: all 0.1s;
+            border-bottom-width: 6px;
+            border-color: rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-3d:active:not(:disabled) {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+            box-shadow: none;
+        }
+
+        /* Animations & Utilities */
+        .selected {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+            transform: scale(1.05);
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        /* Drag & Drop Standard */
+        .draggable {
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+            opacity: 0.6;
+            transform: scale(1.05) rotate(3deg);
+        }
+
+        .drop-zone {
+            transition: all 0.2s;
+            border: 4px dashed #cbd5e1;
+            background: #f8fafc;
+        }
+
+        .drop-zone.drag-over {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+
+        /* Grid Scroll for mobile safety */
+        .scroll-container {
+            width: 100%;
+            max-height: 350px;
+            /* Reduced max height */
+            overflow-y: auto;
+            padding: 10px;
+        }
+    </style>
 </head>
-<body class="min-h-screen text-slate-800 pb-10">
 
-  <div class="fixed top-4 left-0 right-0 z-50 px-4 pointer-events-none">
-    <div class="max-w-4xl mx-auto bg-green-400 border-4 border-green-600 rounded-full px-6 py-3 shadow-xl flex items-center justify-between pointer-events-auto transform hover:scale-[1.01] transition-transform">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl animate-bounce">🧠</span>
-        <span id="info-text" class="text-xl font-bold text-green-900 leading-none mt-1">Belajar Tambah</span>
-      </div>
-      <button id="speak-btn" onclick="speakInfo()" class="bg-white hover:bg-green-50 text-green-600 border-2 border-green-200 rounded-full p-2 transition-colors shadow-sm">🔊</button>
+<body class="h-screen w-screen overflow-hidden text-slate-800 flex flex-col overscroll-none">
+
+    <div class="flex-none p-4 z-50 pointer-events-none w-full">
+        <div
+            class="max-w-4xl mx-auto bg-green-400 border-4 border-green-600 rounded-full px-6 py-3 shadow-xl flex items-center justify-between pointer-events-auto transform hover:scale-[1.01] transition-transform">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl animate-bounce">🧠</span>
+                <span id="info-text" class="text-xl font-bold text-green-900 leading-none mt-1">Belajar Tambah</span>
+            </div>
+            <button id="speak-btn" onclick="speakInfo()"
+                class="bg-white hover:bg-green-50 text-green-600 border-2 border-green-200 rounded-full p-2 transition-colors shadow-sm">🔊</button>
+        </div>
     </div>
-  </div>
-  <div class="h-24"></div>
 
-  <div class="max-w-6xl mx-auto p-4">
-    
-    <div class="game-card p-8 mb-8">
-        <div id="activity-content" class="w-full relative z-10 flex flex-col items-center justify-center h-full transition-opacity duration-200">
-            <div class="py-10 text-center">
-                <div class="text-8xl mb-6 animate-pulse">🧩</div>
-                <h2 class="text-5xl font-bold text-emerald-600 mb-4">Eksplorasi Tambah</h2>
-                <p class="text-2xl text-slate-500 mb-8 font-semibold">Belajar tanpa tekanan. Klik dan lihat.</p>
-                <div class="text-4xl animate-bounce">👇</div>
+    <div class="flex-1 w-full max-w-6xl mx-auto p-2 flex flex-col min-h-0">
+
+        <div class="game-card p-2 mb-2 flex-1 w-full">
+            <div id="activity-content"
+                class="w-full relative z-10 flex flex-col items-center justify-center h-full transition-opacity duration-200">
+                <div class="py-10 text-center">
+                    <div class="text-8xl mb-6 animate-pulse">🧩</div>
+                    <h2 class="text-5xl font-bold text-emerald-600 mb-4">Eksplorasi Tambah</h2>
+                    <p class="text-xl text-slate-500 mb-8 font-semibold">Belajar tanpa tekanan. Klik dan lihat.</p>
+                    <div class="text-4xl animate-bounce">👇</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-none bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-2 border-2 border-white">
+            <h3 class="text-lg font-bold text-slate-700 mb-1 text-center">🎮 Pilih Aktiviti</h3>
+
+            <div class="grid grid-cols-5 gap-2 mb-2">
+                <button onclick="loadActivity(1)"
+                    class="btn-3d bg-blue-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🔵
+                    Kad</button>
+                <button onclick="loadActivity(2)"
+                    class="btn-3d bg-green-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🔢
+                    Banding</button>
+                <button onclick="loadActivity(3)"
+                    class="btn-3d bg-purple-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🧺
+                    Bakul</button>
+                <button onclick="loadActivity(4)"
+                    class="btn-3d bg-pink-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🎨
+                    Warna</button>
+                <button onclick="loadActivity(5)"
+                    class="btn-3d bg-orange-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🧩
+                    Susun</button>
+            </div>
+
+            <div class="flex justify-center gap-4 border-t-2 border-slate-100 pt-2">
+                <button onclick="clearActivity()"
+                    class="btn-3d bg-slate-400 text-white font-bold py-1 px-4 rounded-full text-base">🏠 Menu</button>
+                <button onclick="nextActivity()"
+                    class="btn-3d bg-indigo-500 text-white font-bold py-1 px-6 rounded-full text-lg">Seterusnya
+                    ➡️</button>
             </div>
         </div>
     </div>
 
-    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-6 border-2 border-white">
-      <h3 class="text-2xl font-bold text-slate-700 mb-4 text-center">🎮 Pilih Aktiviti</h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <button onclick="loadActivity(1)" class="btn-3d bg-blue-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🔵 Kad Titik</button>
-        <button onclick="loadActivity(2)" class="btn-3d bg-green-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🔢 Banding Jumlah</button>
-        <button onclick="loadActivity(3)" class="btn-3d bg-purple-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🧺 Bakul Jumlah</button>
-        <button onclick="loadActivity(4)" class="btn-3d bg-pink-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🎨 Warna Jumlah</button>
-        <button onclick="loadActivity(5)" class="btn-3d bg-orange-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🧩 Susun Tertib</button>
-      </div>
+    <script>
+        /* --- STANDARD HELPERS --- */
+        let currentActivity = 0;
+        let ttsEnabled = false;
+        let currentInfo = "Klik butang aktiviti untuk mula meneroka.";
 
-      <div class="flex justify-center gap-4 border-t-2 border-slate-100 pt-6">
-        <button onclick="clearActivity()" class="btn-3d bg-slate-400 text-white font-bold py-2 px-6 rounded-full text-lg">🏠 Menu</button>
-        <button onclick="nextActivity()" class="btn-3d bg-indigo-500 text-white font-bold py-2 px-8 rounded-full text-xl">Seterusnya ➡️</button>
-      </div>
-    </div>
-  </div>
+        function speak(text) {
+            if (!ttsEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text); u.lang = 'ms-MY'; u.rate = 0.95; u.pitch = 1.05;
+            const ms = window.speechSynthesis.getVoices().find(v => v.lang === 'ms-MY' || v.lang?.startsWith('ms'));
+            if (ms) u.voice = ms;
+            window.speechSynthesis.speak(u);
+        }
 
-  <script>
-    /* --- STANDARD HELPERS --- */
-    let currentActivity = 0;
-    let ttsEnabled = false;
-    let currentInfo = "Klik butang aktiviti untuk mula meneroka.";
-    
-    function speak(text) { 
-        if (!ttsEnabled || !('speechSynthesis' in window)) return; 
-        window.speechSynthesis.cancel(); 
-        const u = new SpeechSynthesisUtterance(text); u.lang = 'ms-MY'; u.rate = 0.95; u.pitch = 1.05; 
-        const ms = window.speechSynthesis.getVoices().find(v => v.lang === 'ms-MY' || v.lang?.startsWith('ms')); 
-        if (ms) u.voice = ms; 
-        window.speechSynthesis.speak(u); 
-    }
-    
-    function setInfo(text) { 
-        currentInfo = text; const infoEl = document.getElementById('info-text'); 
-        infoEl.style.opacity = 0; setTimeout(() => { infoEl.textContent = text; infoEl.style.opacity = 1; }, 200); 
-    }
-    
-    function speakInfo() { 
-        if (!ttsEnabled) { ttsEnabled = true; document.getElementById('speak-btn').classList.add('bg-green-100', 'text-green-600'); } 
-        speak(currentInfo); 
-    }
+        function setInfo(text) {
+            currentInfo = text; const infoEl = document.getElementById('info-text');
+            infoEl.style.opacity = 0; setTimeout(() => { infoEl.textContent = text; infoEl.style.opacity = 1; }, 200);
+        }
 
-    /* --- ROUTER --- */
-    function loadActivity(n) {
-      currentActivity = n;
-      const content = document.getElementById('activity-content');
-      content.style.opacity = 0;
-      setTimeout(() => {
-          if (n === 1) setupActivity1(content);
-          else if (n === 2) setupActivity2(content);
-          else if (n === 3) setupActivity3(content);
-          else if (n === 4) setupActivity4(content);
-          else if (n === 5) setupActivity5(content);
-          content.style.opacity = 1; 
-      }, 200);
-    }
+        function speakInfo() {
+            if (!ttsEnabled) { ttsEnabled = true; document.getElementById('speak-btn').classList.add('bg-green-100', 'text-green-600'); }
+            speak(currentInfo);
+        }
 
-    function clearActivity() {
-        currentActivity = 0;
-        document.getElementById('activity-content').innerHTML = `<div class="py-10 text-center"><div class="text-8xl mb-6 animate-pulse">🧩</div><h2 class="text-5xl font-bold text-emerald-600 mb-4">Eksplorasi Tambah</h2><p class="text-2xl text-slate-500 mb-8 font-semibold">Belajar tanpa tekanan.</p></div>`;
-        setInfo("Pilih aktiviti di bawah.");
-    }
-    function nextActivity() { let next = currentActivity + 1; if (next > 5) next = 1; loadActivity(next); }
+        /* --- ROUTER --- */
+        function loadActivity(n) {
+            currentActivity = n;
+            const content = document.getElementById('activity-content');
+            content.style.opacity = 0;
+            setTimeout(() => {
+                if (n === 1) setupActivity1(content);
+                else if (n === 2) setupActivity2(content);
+                else if (n === 3) setupActivity3(content);
+                else if (n === 4) setupActivity4(content);
+                else if (n === 5) setupActivity5(content);
+                content.style.opacity = 1;
+            }, 200);
+        }
+
+        function clearActivity() {
+            currentActivity = 0;
+            document.getElementById('activity-content').innerHTML = `<div class="py-10 text-center"><div class="text-8xl mb-6 animate-pulse">🧩</div><h2 class="text-5xl font-bold text-emerald-600 mb-4">Eksplorasi Tambah</h2><p class="text-2xl text-slate-500 mb-8 font-semibold">Belajar tanpa tekanan.</p></div>`;
+            setInfo("Pilih aktiviti di bawah.");
+        }
+        function nextActivity() { let next = currentActivity + 1; if (next > 5) next = 1; loadActivity(next); }
 
 
-    /* =========================================
-       LOGIK AKTIVITI (PORTED)
-       ========================================= */
+        /* =========================================
+           LOGIK AKTIVITI (PORTED)
+           ========================================= */
 
-    /* --- 1. Kad Titik --- */
-    function setupActivity1(content) {
-        setInfo("Klik kad untuk dengar ayat matematik.");
-        const cards = [
-            {c:'blue', t:'🔵🔵🔵', b:'🔵🔵', txt:'3 + 2 = 5'},
-            {c:'green', t:'🟢🟢🟢🟢', b:'🟢🟢🟢', txt:'4 + 3 = 7'},
-            {c:'purple', t:'🟣🟣', b:'🟣🟣🟣🟣', txt:'2 + 4 = 6'},
-            {c:'red', t:'🔴', b:'🔴🔴🔴🔴🔴', txt:'1 + 5 = 6'},
-            {c:'yellow', t:'🟡🟡🟡🟡🟡', b:'🟡', txt:'5 + 1 = 6'},
-            {c:'orange', t:'🟠🟠🟠🟠🟠🟠', b:'⭕', txt:'6 + 0 = 6'}
-        ];
+        /* --- 1. Kad Titik --- */
+        function setupActivity1(content) {
+            setInfo("Klik kad untuk dengar ayat matematik.");
+            const cards = [
+                { c: 'blue', t: '🔵🔵🔵', b: '🔵🔵', txt: '3 + 2 = 5' },
+                { c: 'green', t: '🟢🟢🟢🟢', b: '🟢🟢🟢', txt: '4 + 3 = 7' },
+                { c: 'purple', t: '🟣🟣', b: '🟣🟣🟣🟣', txt: '2 + 4 = 6' },
+                { c: 'red', t: '🔴', b: '🔴🔴🔴🔴🔴', txt: '1 + 5 = 6' },
+                { c: 'yellow', t: '🟡🟡🟡🟡🟡', b: '🟡', txt: '5 + 1 = 6' },
+                { c: 'orange', t: '🟠🟠🟠🟠🟠🟠', b: '⭕', txt: '6 + 0 = 6' }
+            ];
 
-        content.innerHTML = `
+            content.innerHTML = `
             <div class="w-full text-center">
-                <h3 class="text-3xl font-bold text-blue-600 mb-6">🎯 Kad Titik</h3>
+                <h3 class="text-3xl font-bold text-blue-600 mb-4">🎯 Kad Titik</h3>
                 <div class="scroll-container">
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">
                         ${cards.map(card => `
-                            <button onclick="act1Click(this, '${card.txt}')" class="btn-3d bg-${card.c}-100 border-${card.c}-300 p-4 rounded-2xl flex flex-col items-center justify-center min-h-[160px]">
-                                <div class="text-3xl tracking-widest mb-1">${card.t}</div>
-                                <div class="text-xl font-bold text-slate-400">+</div>
-                                <div class="text-3xl tracking-widest mt-1">${card.b}</div>
+                            <button onclick="act1Click(this, '${card.txt}')" class="btn-3d bg-${card.c}-100 border-${card.c}-300 p-2 rounded-2xl flex flex-col items-center justify-center min-h-[140px]">
+                                <div class="text-2xl tracking-widest mb-1">${card.t}</div>
+                                <div class="text-lg font-bold text-slate-400">+</div>
+                                <div class="text-2xl tracking-widest mt-1">${card.b}</div>
                             </button>
                         `).join('')}
                     </div>
                 </div>
             </div>
         `;
-    }
-    function act1Click(btn, text) {
-        document.querySelectorAll('.btn-3d').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        const msg = `Ayat matematik ialah ${text}.`;
-        setInfo(msg); speak(msg);
-    }
+        }
+        function act1Click(btn, text) {
+            document.querySelectorAll('.btn-3d').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            const msg = `Ayat matematik ialah ${text}.`;
+            setInfo(msg); speak(msg);
+        }
 
-    /* --- 2. Banding Jumlah --- */
-    let matchSel = [];
-    function setupActivity2(content) {
-        setInfo("Klik dua kad. Adakah jumlahnya sama?");
-        matchSel = [];
-        const cards = [
-            {lbl:'7 + 3', sum:10, c:'blue'}, {lbl:'5 + 3', sum:8, c:'green'},
-            {lbl:'6 + 4', sum:10, c:'purple'}, {lbl:'2 + 6', sum:8, c:'red'},
-            {lbl:'8 + 4', sum:12, c:'yellow'}, {lbl:'9 + 3', sum:12, c:'orange'}
-        ];
+        /* --- 2. Banding Jumlah --- */
+        let matchSel = [];
+        function setupActivity2(content) {
+            setInfo("Klik dua kad. Adakah jumlahnya sama?");
+            matchSel = [];
+            const cards = [
+                { lbl: '7 + 3', sum: 10, c: 'blue' }, { lbl: '5 + 3', sum: 8, c: 'green' },
+                { lbl: '6 + 4', sum: 10, c: 'purple' }, { lbl: '2 + 6', sum: 8, c: 'red' },
+                { lbl: '8 + 4', sum: 12, c: 'yellow' }, { lbl: '9 + 3', sum: 12, c: 'orange' }
+            ];
 
-        content.innerHTML = `
+            content.innerHTML = `
             <div class="w-full text-center">
-                <h3 class="text-3xl font-bold text-green-600 mb-6">🔢 Banding Jumlah</h3>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <h3 class="text-3xl font-bold text-green-600 mb-4">🔢 Banding Jumlah</h3>
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     ${cards.map((c, i) => `
-                        <button onclick="act2Click(this, '${c.lbl}', ${c.sum})" class="match-btn btn-3d bg-${c.c}-100 border-${c.c}-300 p-6 rounded-2xl">
-                            <div class="text-2xl font-bold text-slate-700">${c.lbl}</div>
-                            <div class="text-sm text-slate-500 mt-2">Jumlah: ${c.sum}</div>
+                        <button onclick="act2Click(this, '${c.lbl}', ${c.sum})" class="match-btn btn-3d bg-${c.c}-100 border-${c.c}-300 p-4 rounded-2xl">
+                            <div class="text-xl font-bold text-slate-700">${c.lbl}</div>
+                            <div class="text-xs text-slate-500 mt-2">Jumlah: ${c.sum}</div>
                         </button>
                     `).join('')}
                 </div>
             </div>
         `;
-    }
-    function act2Click(btn, label, sum) {
-        if(btn.classList.contains('selected')) return;
-        btn.classList.add('selected');
-        matchSel.push({btn, label, sum});
-
-        if(matchSel.length === 1) {
-            speak(`Kad ${label} jumlah ${sum}. Pilih satu lagi.`);
-        } else if (matchSel.length === 2) {
-            const [a, b] = matchSel;
-            if(a.sum === b.sum) {
-                const msg = `Sama! ${a.label} dan ${b.label} kedua-duanya jumlah ${a.sum}.`;
-                setInfo(msg); speak(msg);
-                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-            } else {
-                const msg = `Tak sama. ${a.sum} dan ${b.sum}. Lihat perbezaannya.`;
-                setInfo(msg); speak(msg);
-            }
-            setTimeout(() => {
-                matchSel.forEach(obj => obj.btn.classList.remove('selected'));
-                matchSel = [];
-            }, 2000);
         }
-    }
+        function act2Click(btn, label, sum) {
+            if (btn.classList.contains('selected')) return;
+            btn.classList.add('selected');
+            matchSel.push({ btn, label, sum });
 
-    /* --- 3. Bakul Jumlah --- */
-    function setupActivity3(content) {
-        setInfo("Seret kad ke dalam bakul.");
-        
-        content.innerHTML = `
+            if (matchSel.length === 1) {
+                speak(`Kad ${label} jumlah ${sum}. Pilih satu lagi.`);
+            } else if (matchSel.length === 2) {
+                const [a, b] = matchSel;
+                if (a.sum === b.sum) {
+                    const msg = `Sama! ${a.label} dan ${b.label} kedua-duanya jumlah ${a.sum}.`;
+                    setInfo(msg); speak(msg);
+                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                } else {
+                    const msg = `Tak sama. ${a.sum} dan ${b.sum}. Lihat perbezaannya.`;
+                    setInfo(msg); speak(msg);
+                }
+                setTimeout(() => {
+                    matchSel.forEach(obj => obj.btn.classList.remove('selected'));
+                    matchSel = [];
+                }, 2000);
+            }
+        }
+
+        /* --- 3. Bakul Jumlah --- */
+        function setupActivity3(content) {
+            setInfo("Seret kad ke dalam bakul.");
+
+            content.innerHTML = `
             <div class="w-full text-center">
-                <h3 class="text-3xl font-bold text-purple-600 mb-6">🧺 Bakul Jumlah</h3>
+                <h3 class="text-3xl font-bold text-purple-600 mb-4">🧺 Bakul Jumlah</h3>
                 
-                <div class="flex justify-center gap-4 mb-8">
+                <div class="flex justify-center gap-2 mb-4">
                     ${[6, 10, 12].map(n => `
-                        <div class="drop-zone w-32 h-32 rounded-2xl flex flex-col items-center justify-center" 
+                        <div class="drop-zone w-24 h-24 rounded-2xl flex flex-col items-center justify-center p-1" 
                              data-target="${n}" ondragover="allowDrop(event)" ondrop="dropBasket(event)" ondragleave="leaveDrop(event)">
-                            <div class="text-4xl">🧺</div>
-                            <div class="font-bold text-slate-600 mt-2">Jumlah ${n}</div>
+                            <div class="text-3xl">🧺</div>
+                            <div class="font-bold text-slate-600 text-sm mt-1">Jumlah ${n}</div>
                         </div>
                     `).join('')}
                 </div>
 
-                <div class="flex flex-wrap justify-center gap-4">
-                    ${[{l:'4+2',s:6}, {l:'7+3',s:10}, {l:'8+4',s:12}, {l:'5+1',s:6}, {l:'6+4',s:10}, {l:'9+3',s:12}].map(c => `
-                        <div class="draggable btn-3d bg-white border-slate-300 px-6 py-3 rounded-xl text-xl font-bold"
+                <div class="flex flex-wrap justify-center gap-2">
+                    ${[{ l: '4+2', s: 6 }, { l: '7+3', s: 10 }, { l: '8+4', s: 12 }, { l: '5+1', s: 6 }, { l: '6+4', s: 10 }, { l: '9+3', s: 12 }].map(c => `
+                        <div class="draggable btn-3d bg-white border-slate-300 px-4 py-2 rounded-xl text-lg font-bold"
                              draggable="true" ondragstart="dragStart(event)" data-sum="${c.s}" data-lbl="${c.l}">
                             ${c.l}
                         </div>
@@ -271,133 +334,134 @@
                 </div>
             </div>
         `;
-    }
-    
-    window.dragStart = function(e) {
-        e.dataTransfer.setData('text/plain', JSON.stringify({sum: e.target.dataset.sum, lbl: e.target.dataset.lbl}));
-        e.target.classList.add('opacity-50');
-    }
-    window.allowDrop = function(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
-    window.leaveDrop = function(e) { e.currentTarget.classList.remove('drag-over'); }
-    window.dropBasket = function(e) {
-        e.preventDefault();
-        e.currentTarget.classList.remove('drag-over');
-        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-        const target = e.currentTarget.dataset.target;
-        
-        // Logic: Accept always (Learning Mode) but give feedback
-        const card = document.querySelector(`.draggable[data-lbl="${data.lbl}"]`);
-        if(card) {
-            e.currentTarget.appendChild(card);
-            card.classList.remove('opacity-50', 'btn-3d'); // Remove 3d style inside basket for cleaner look
-            card.classList.add('bg-transparent', 'border-0', 'shadow-none');
-            card.draggable = false;
-            
-            if(data.sum == target) {
-                speak(`Betul. ${data.lbl} ialah ${data.sum}.`);
-            } else {
-                speak(`${data.lbl} ialah ${data.sum}, tapi anda letak di bakul ${target}. Tidak mengapa.`);
+        }
+
+        window.dragStart = function (e) {
+            e.dataTransfer.setData('text/plain', JSON.stringify({ sum: e.target.dataset.sum, lbl: e.target.dataset.lbl }));
+            e.target.classList.add('opacity-50');
+        }
+        window.allowDrop = function (e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+        window.leaveDrop = function (e) { e.currentTarget.classList.remove('drag-over'); }
+        window.dropBasket = function (e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const target = e.currentTarget.dataset.target;
+
+            // Logic: Accept always (Learning Mode) but give feedback
+            const card = document.querySelector(`.draggable[data-lbl="${data.lbl}"]`);
+            if (card) {
+                e.currentTarget.appendChild(card);
+                card.classList.remove('opacity-50', 'btn-3d'); // Remove 3d style inside basket for cleaner look
+                card.classList.add('bg-transparent', 'border-0', 'shadow-none');
+                card.draggable = false;
+
+                if (data.sum == target) {
+                    speak(`Betul. ${data.lbl} ialah ${data.sum}.`);
+                } else {
+                    speak(`${data.lbl} ialah ${data.sum}, tapi anda letak di bakul ${target}. Tidak mengapa.`);
+                }
             }
         }
-    }
 
-    /* --- 4. Warna Jumlah --- */
-    let colorSel = null;
-    function setupActivity4(content) {
-        setInfo("Pilih warna, kemudian warnakan kad.");
-        colorSel = null;
-        
-        content.innerHTML = `
+        /* --- 4. Warna Jumlah --- */
+        let colorSel = null;
+        function setupActivity4(content) {
+            setInfo("Pilih warna, kemudian warnakan kad.");
+            colorSel = null;
+
+            content.innerHTML = `
             <div class="w-full text-center">
-                <h3 class="text-3xl font-bold text-pink-600 mb-6">🎨 Warna Jumlah</h3>
+                <h3 class="text-3xl font-bold text-pink-600 mb-4">🎨 Warna Jumlah</h3>
                 
-                <div class="flex justify-center gap-6 mb-8">
-                    <button onclick="pickColor('red', 8, this)" class="color-btn w-16 h-16 rounded-full bg-red-500 border-4 border-white shadow-lg transform hover:scale-110 transition"></button>
-                    <button onclick="pickColor('blue', 10, this)" class="color-btn w-16 h-16 rounded-full bg-blue-500 border-4 border-white shadow-lg transform hover:scale-110 transition"></button>
-                    <button onclick="pickColor('green', 12, this)" class="color-btn w-16 h-16 rounded-full bg-green-500 border-4 border-white shadow-lg transform hover:scale-110 transition"></button>
+                <div class="flex justify-center gap-4 mb-4">
+                    <button onclick="pickColor('red', 8, this)" class="color-btn w-12 h-12 rounded-full bg-red-500 border-4 border-white shadow-lg transform hover:scale-110 transition"></button>
+                    <button onclick="pickColor('blue', 10, this)" class="color-btn w-12 h-12 rounded-full bg-blue-500 border-4 border-white shadow-lg transform hover:scale-110 transition"></button>
+                    <button onclick="pickColor('green', 12, this)" class="color-btn w-12 h-12 rounded-full bg-green-500 border-4 border-white shadow-lg transform hover:scale-110 transition"></button>
                 </div>
-                <div id="color-info" class="text-slate-500 font-bold mb-4">Pilih satu warna di atas</div>
+                <div id="color-info" class="text-slate-500 font-bold mb-2">Pilih satu warna di atas</div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    ${[{l:'5+3',s:8}, {l:'7+3',s:10}, {l:'8+4',s:12}, {l:'6+2',s:8}, {l:'6+4',s:10}, {l:'9+3',s:12}].map(c => `
-                        <button onclick="paintCard(this, '${c.l}', ${c.s})" class="paint-card btn-3d bg-white border-slate-200 p-4 rounded-xl">
-                            <div class="text-xl font-bold">${c.l}</div>
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                    ${[{ l: '5+3', s: 8 }, { l: '7+3', s: 10 }, { l: '8+4', s: 12 }, { l: '6+2', s: 8 }, { l: '6+4', s: 10 }, { l: '9+3', s: 12 }].map(c => `
+                        <button onclick="paintCard(this, '${c.l}', ${c.s})" class="paint-card btn-3d bg-white border-slate-200 p-2 rounded-xl">
+                            <div class="text-lg font-bold">${c.l}</div>
                             <div class="text-xs text-slate-400">Jumlah: ${c.s}</div>
                         </button>
                     `).join('')}
                 </div>
             </div>
         `;
-    }
-    window.pickColor = function(color, sum, btn) {
-        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-4', 'ring-slate-400'));
-        btn.classList.add('ring-4', 'ring-slate-400');
-        colorSel = { color, sum };
-        document.getElementById('color-info').innerText = `Warna ${color === 'red'?'Merah (8)':color==='blue'?'Biru (10)':'Hijau (12)'} dipilih.`;
-        speak(`Warna ${color === 'red'?'Merah':color==='blue'?'Biru':'Hijau'} mewakili nombor ${sum}`);
-    }
-    window.paintCard = function(btn, lbl, sum) {
-        if(!colorSel) { speak("Sila pilih warna dahulu."); return; }
-        
-        // Remove old color classes
-        btn.className = `paint-card btn-3d p-4 rounded-xl border-${colorSel.color}-300 bg-${colorSel.color}-100 text-${colorSel.color}-800`;
-        
-        if(sum === colorSel.sum) {
-            speak(`Padanan tepat! ${lbl} ialah ${sum}.`);
-        } else {
-            speak(`${lbl} ialah ${sum}. Warna ini untuk ${colorSel.sum}. Lihat bezanya.`);
         }
-    }
+        window.pickColor = function (color, sum, btn) {
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-4', 'ring-slate-400'));
+            btn.classList.add('ring-4', 'ring-slate-400');
+            colorSel = { color, sum };
+            document.getElementById('color-info').innerText = `Warna ${color === 'red' ? 'Merah (8)' : color === 'blue' ? 'Biru (10)' : 'Hijau (12)'} dipilih.`;
+            speak(`Warna ${color === 'red' ? 'Merah' : color === 'blue' ? 'Biru' : 'Hijau'} mewakili nombor ${sum}`);
+        }
+        window.paintCard = function (btn, lbl, sum) {
+            if (!colorSel) { speak("Sila pilih warna dahulu."); return; }
 
-    /* --- 5. Susun Tertib --- */
-    function setupActivity5(content) {
-        setInfo("Klik 'Susun' untuk melihat urutan nombor.");
-        const cards = [
-            {l:'8 + 4', s:12}, {l:'4 + 2', s:6}, {l:'7 + 3', s:10}, {l:'5 + 3', s:8}
-        ];
+            // Remove old color classes
+            btn.className = `paint-card btn-3d p-4 rounded-xl border-${colorSel.color}-300 bg-${colorSel.color}-100 text-${colorSel.color}-800`;
 
-        content.innerHTML = `
+            if (sum === colorSel.sum) {
+                speak(`Padanan tepat! ${lbl} ialah ${sum}.`);
+            } else {
+                speak(`${lbl} ialah ${sum}. Warna ini untuk ${colorSel.sum}. Lihat bezanya.`);
+            }
+        }
+
+        /* --- 5. Susun Tertib --- */
+        function setupActivity5(content) {
+            setInfo("Klik 'Susun' untuk melihat urutan nombor.");
+            const cards = [
+                { l: '8 + 4', s: 12 }, { l: '4 + 2', s: 6 }, { l: '7 + 3', s: 10 }, { l: '5 + 3', s: 8 }
+            ];
+
+            content.innerHTML = `
             <div class="w-full text-center">
-                <h3 class="text-3xl font-bold text-orange-600 mb-6">🧩 Susun Tertib</h3>
+                <h3 class="text-3xl font-bold text-orange-600 mb-4">🧩 Susun Tertib</h3>
                 
-                <div id="sort-container" class="flex flex-wrap justify-center gap-4 mb-8 min-h-[100px] items-center">
+                <div id="sort-container" class="flex flex-wrap justify-center gap-2 mb-4 min-h-[80px] items-center">
                     ${cards.map(c => `
-                        <div class="sort-item btn-3d bg-white border-slate-300 p-6 rounded-xl min-w-[120px]" data-sum="${c.s}">
-                            <div class="text-2xl font-bold">${c.l}</div>
-                            <div class="text-slate-400 text-sm">Jumlah: ${c.s}</div>
+                        <div class="sort-item btn-3d bg-white border-slate-300 p-4 rounded-xl min-w-[100px]" data-sum="${c.s}">
+                            <div class="text-xl font-bold">${c.l}</div>
+                            <div class="text-slate-400 text-xs">Jumlah: ${c.s}</div>
                         </div>
                     `).join('')}
                 </div>
 
-                <button onclick="autoSort()" class="btn-3d bg-indigo-500 text-white font-bold py-3 px-8 rounded-xl text-xl">🔄 Susun Secara Visual</button>
-                <div class="mt-4 text-slate-500">Tertib: 6 ➡ 8 ➡ 10 ➡ 12</div>
+                <button onclick="autoSort()" class="btn-3d bg-indigo-500 text-white font-bold py-2 px-6 rounded-xl text-lg">🔄 Susun Visual</button>
+                <div class="mt-2 text-slate-500">Tertib: 6 ➡ 8 ➡ 10 ➡ 12</div>
             </div>
         `;
-        
-        // Add click listener to items for TTS
-        setTimeout(() => {
-            document.querySelectorAll('.sort-item').forEach(item => {
-                item.onclick = () => speak(`Jumlah ${item.dataset.sum}`);
-            });
-        }, 100);
-    }
-    
-    window.autoSort = function() {
-        const container = document.getElementById('sort-container');
-        const items = Array.from(container.children);
-        
-        items.sort((a, b) => parseInt(a.dataset.sum) - parseInt(b.dataset.sum));
-        
-        container.innerHTML = '';
-        items.forEach(item => {
-            item.classList.add('animate-popIn'); // Add subtle animation logic if css added, or just move
-            container.appendChild(item);
-        });
-        
-        speak("Kad telah disusun dari kecil ke besar.");
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    }
 
-  </script>
+            // Add click listener to items for TTS
+            setTimeout(() => {
+                document.querySelectorAll('.sort-item').forEach(item => {
+                    item.onclick = () => speak(`Jumlah ${item.dataset.sum}`);
+                });
+            }, 100);
+        }
+
+        window.autoSort = function () {
+            const container = document.getElementById('sort-container');
+            const items = Array.from(container.children);
+
+            items.sort((a, b) => parseInt(a.dataset.sum) - parseInt(b.dataset.sum));
+
+            container.innerHTML = '';
+            items.forEach(item => {
+                item.classList.add('animate-popIn'); // Add subtle animation logic if css added, or just move
+                container.appendChild(item);
+            });
+
+            speak("Kad telah disusun dari kecil ke besar.");
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+
+    </script>
 </body>
+
 </html>
